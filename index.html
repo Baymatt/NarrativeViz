@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.line {
+  fill: none;
+  stroke: red;
+  stroke-width: 2px;
+}
+
+</style>
+<body>
+
+<!-- loads the d3.js library -->    	
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<!-- loads d3 annotations-->
+<script src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"></script>
+
+<center><h1>Number of Incidents in San Francisco over Time from 2018 to Present</h1></center>
+
+<script>
+
+var margin = {top: 20, right: 20, bottom: 50, left: 70},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+
+var parseTime = d3.timeParse("%Y-%m");
+
+
+var x = d3.scaleTime().range([0, width]);
+var y = d3.scaleLinear().range([height, 0]);
+
+
+var incidentline = d3.line()
+    .x(function(d) { return x(parseTime(d.Date)); })
+    .y(function(d) { return y(d.Incidents); });
+
+
+var svg1 = d3.select("body").append("svg").attr("width", width + margin.left + margin.right + 200).attr("height", height + margin.top + margin.bottom)
+  .append("g").attr("transform", "translate("+margin.left+","+margin.top+")");
+
+// Get the data for incident comparison over month and year
+d3.csv("Incident_By_Month_and_Year.csv").then(function(data) {
+
+  // format the data
+  data.forEach(function(d) {
+      d.date = parseTime(d.Date);
+      d.Incidents = +d.Incidents;
+  });
+
+  x.domain(d3.extent(data, function(d) { return d.date; }));
+  y.domain([d3.max(data, function(d) { return d.Incidents; }) / 2, d3.max(data, function(d) { return d.Incidents; }) + 1000]);
+
+  svg1.append("path").data([data]).attr("class", "line").attr("d", incidentline);
+
+  svg1.append("g").attr("transform", "translate(0,"+height+")").call(d3.axisBottom(x));
+
+  svg1.append("g").call(d3.axisLeft(y));
+
+});
+
+const annotations = [
+    //start of term
+  {
+    note: {
+      label: "Chesa Boudin assumes office on January 8, 2020",
+      title: "Start of Term"
+    },
+    type: d3.annotationCalloutCircle,
+    subject: {
+      radius: 20,         
+    },
+    x: 455, y: 165, dy: 30, dx: 30
+  },
+
+  //recall election
+  {
+    note: {
+      label: "Boudin is recalled on June 7, 2022 at a margin of 55% to 45%",
+      title: "Recall Election"
+    },
+    type: d3.annotationCalloutCircle,
+    subject: {
+      radius: 20,          
+    },
+    x: 920, y: 270, dy: 30, dx: 30
+  }
+  
+
+]
+
+const makeAnnotations = d3.annotation().annotations(annotations)
+
+d3.select("svg").append("g").call(makeAnnotations)
+
+</script>
+
+<br>
+<p style="font-size: 24px">Placeholder text</p>
+
+<div id="scatter"></div>
+
+<script>
+
+// Set consistent dimensions to match other viz
+var margin = {top: 10, right: 30, bottom: 30, left: 60},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var svg2 = d3.select("#scatter").append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom)
+  .append("g").attr("transform","translate("+margin.left+","+margin.top+")");
+
+// Incidents by neighborhood data 
+d3.csv("Incidents_By_Neighborhood.csv", function(data) {
+
+  var x = d3.scaleLinear().domain([0, 100]).range([0, width]);
+  svg2.append("g").attr("transform", "translate(0,"+height+")").call(d3.axisBottom(x));
+
+  var y = d3.scaleLinear().domain([0, 70000]).range([height, 0]);
+  svg2.append("g").call(d3.axisLeft(y));
+
+  svg2.selectAll("dot")
+    .data([data])
+    .enter()
+    .append("circle")
+      .attr("cx", function (d) { return x(d.Percentage); } )
+      .attr("cy", function (d) { return y(d.Incidents); } )
+      .attr("r", 10)
+      .style("fill", "#FF6863")
+      .style("opacity", 0.8)
+      .style("stroke", "white")
+      .append("title")
+      .text(function(d, i) { return "This Neighborhood is: " + d.Neighborhood})
+
+
+})
+
+</script>
+
+<br>
+<p style="font-size: 24px">Placeholder text</p>
+
+<div id="filter"></div>
+
+<select id="neighborhoodButton"></select>
+
+<script>
+
+// Consistent margins and size
+var margin = {top: 10, right: 30, bottom: 30, left: 60},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var svg3 = d3.select("#filter").append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom)
+  .append("g").attr("transform", "translate("+margin.left+","+margin.top+")");
+
+//Read the data for neighborhood breakdown of incidents per year
+d3.csv("Per_Year_Neighborhood.csv").then( function(data) {
+
+    // list of neighborhoods
+    var neighborhoodsList = ["Bayview Hunters Point", "Bernal Heights", "Castro/Upper Market", "Chinatown", "Excelsior", "Financial District/South Beach", "Glen Park", "Golden Gate Park", "Haight Ashbury", "Hayes Valley", "Inner Richmond", "Inner Sunset", "Japantown", "Lakeshore", "Lincoln Park", "Lone Mountain/USF", "Marina", "McLaren Park", "Mission", "Mission Bay", "Nob Hill", "Noe Valley", "North Beach", "Oceanview/Merced/Ingleside", "Outer Mission", "Outer Richmond", "Pacific Heights", "Portola", "Potrero Hill", "Presidio", "Presidio Heights", "Russian Hill", "Seacliff", "South of Market", "Sunset/Parkside", "Tenderloin", "Treasure Island", "Twin Peaks", "Visitacion Valley", "West of Twin Peaks", "Western Addition"]
+
+    d3.select("#neighborhoodButton")
+      .selectAll('myOptions')
+     	.data(neighborhoodsList)
+      .enter()
+    	.append('option')
+      .text(function (d) { return d; }) 
+      .attr("value", function (d) { return d; })
+
+    var x = d3.scaleLinear().domain([2018, 2021]).range([0, width]);
+    svg3.append("g").attr("transform", "translate(0,"+height+")").call(d3.axisBottom(x).tickValues(["2018", "2019", "2020", "2021"]));
+
+    var y = d3.scaleLinear().domain( [0,18000]).range([ height, 0 ]);
+    svg3.append("g").call(d3.axisLeft(y));
+
+    // Plots the first initial neighborhood
+    var line = svg3
+      .append('g')
+      .append("path")
+        .datum(data)
+        .attr("d", d3.line()
+          .x(function(d) { return x(+d.Year) })
+          .y(function(d) { return y(d["Bayview Hunters Point"]) })
+        )
+        .attr("stroke", "red")
+        .style("stroke-width", 3)
+        .style("fill", "none")
+
+    function update(selectedNeighborhood) {
+
+      line
+          .transition()
+          .duration(500)
+          .attr("d", d3.line()
+            .x(function(d) { return x(+d.Year) })
+            .y(function(d) { return y(d[selectedNeighborhood]) })
+          )
+          .attr("stroke", "red")
+    }
+
+    d3.select("#neighborhoodButton").on("change", function(event,d) {
+        const selected = d3.select(this).property("value")
+        update(selected)
+    })
+
+})
+
+</script>
+
+<br>
+<p style="font-size: 24px">Placeholder text</p>
+
+
+</body>
+
