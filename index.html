@@ -16,7 +16,12 @@
 <!-- loads d3 annotations-->
 <script src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"></script>
 
-<center><h1>Number of Incidents in San Francisco over Time from 2018 to Present</h1></center>
+<center><h1>Incident Rates in San Francisco and The Recall of Their District Attorney</h1></center>
+
+<h2>Incident Rates From 2018 to Present</h2>
+<p style="font-size: 18px">One of the main talking points from supporters of the recall election was that San Francisco had become more unsafe during Boudin's term due to his policies.</p>
+<p style="font-size: 18px">The number of incidents drastically went down at the beginning of Boudin's term and then started to rise.</p>
+<p style="font-size: 18px">Did the increase in crime after shelter in place contribute to perception that San Francisco had become unsafer?</p>
 
 <script>
 
@@ -97,7 +102,11 @@ d3.select("svg").append("g").call(makeAnnotations)
 </script>
 
 <br>
-<p style="font-size: 24px">Placeholder text</p>
+<br>
+<h2>Percentage that Voted For the Recall versus Number of Incidents (from 2018 to Present) by Neighborhood</h2>
+<p style="font-size: 18px">There is no clear correlation between a neighborhood's number of incidents and their support of the recall election.</p>
+<p style="font-size: 18px">Did the increase of crime in neighborhoods contribute to their support of the recall?</p>
+<p style="font-size: 18px">Hover over a circle to get the neighborhood name.</p>
 
 <div id="scatter"></div>
 
@@ -139,11 +148,14 @@ d3.csv("Incidents_By_Neighborhood.csv", function(data) {
 </script>
 
 <br>
-<p style="font-size: 24px">Placeholder text</p>
-
-<div id="filter"></div>
+<br>
+<h2>Number of Incidents By Neighborhood From 2018 to 2021</h2>
+<p style="font-size: 18px">In most neighborhoods, there did not seem to be an increase of crime from pre-pandemic levels.</p>
+<p style="font-size: 18px">Was there an increase of more visible crime (i.e. shoplifting, car break-ins) compared to less visible crime (i.e. fraud)?</p>
 
 <select id="neighborhoodButton"></select>
+
+<div id="filter"></div>
 
 <script>
 
@@ -210,7 +222,6 @@ d3.csv("Per_Year_Neighborhood.csv").then( function(data) {
 </script>
 
 <br>
-<p style="font-size: 24px">Placeholder text</p>
 
 
 </body>
